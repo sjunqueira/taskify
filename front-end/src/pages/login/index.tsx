@@ -17,9 +17,10 @@ export default function Login() {
         //background: `linear-gradient(to right, rgba(75, 108, 183, 0.9), rgba(24, 40, 72, 0.9)))`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        justifyContent: 'space-between',
         //color: '#000',
         //py: 10,
-        textAlign: 'center',
+        textAlign: 'center'
       }}
     >
       {/* Barra de navegação */}

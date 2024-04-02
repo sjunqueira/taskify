@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Box, Typography, Button, Container, Hidden, TextField, Switch, FormGroup, FormControlLabel, Link, Checkbox } from '@mui/material';
+import { Box, Typography, Button, Container, Hidden, TextField, Switch, FormGroup, FormControlLabel, Link, Checkbox, IconButton } from '@mui/material';
 import Image from 'next/image';
 import styles from "@/styles/Home.module.css";
-import { CaretRight } from '@phosphor-icons/react'
+import { CaretRight, Trash } from '@phosphor-icons/react'
 
 import { IBM_Plex_Mono } from "next/font/google";
 
@@ -12,45 +12,40 @@ const ibmplexmono = IBM_Plex_Mono({ subsets: ["latin"], weight: '300' });
 
 export default function Login() {
   const [tarefas, setTarefas] = useState([
-    { texto: 'Ir à academia por 1 hora', concluida: false },
-    { texto: 'Ler 50 páginas do livro "X"', concluida: false },
-    { texto: 'Fazer compras de supermercado', concluida: false },
-    { texto: 'Ligar para o dentista e marcar consulta', concluida: false },
-    { texto: 'Enviar e-mails pendentes', concluida: false },
-    { texto: 'Preparar relatório para reunião', concluida: false },
-    { texto: 'Assistir ao webinar sobre produtividade', concluida: false },
-    { texto: 'Limpar o armário da cozinha', concluida: false },
-    { texto: 'Agendar encontro com amigos', concluida: false },
-    { texto: 'Pagar contas de água e luz', concluida: false },
-    { texto: 'Fazer backup dos arquivos importantes', concluida: false },
-    { texto: 'Estudar por 1 hora', concluida: false },
-    { texto: 'Assistir a um episódio da série "X"', concluida: false },
-    { texto: 'Resolver quebra-cabeça', concluida: false },
-    { texto: 'Aprender uma nova receita de culinária', concluida: false },
-    { texto: 'Fazer uma caminhada de 30 minutos', concluida: false },
-    { texto: 'Revisar anotações de estudo', concluida: false },
-    { texto: 'Praticar meditação por 15 minutos', concluida: false },
-    { texto: 'Fazer uma lista de compras', concluida: false },
-    { texto: 'Escrever no diário por 20 minutos', concluida: false },
-    { texto: 'Assistir a um tutorial online', concluida: false },
-    { texto: 'Organizar documentos no computador', concluida: false },
-    { texto: 'Planejar viagem de férias', concluida: false },
-    { texto: 'Pesquisar sobre um assunto de interesse', concluida: false },
-    { texto: 'Conversar com um familiar por telefone', concluida: false },
-    { texto: 'Praticar exercícios de alongamento', concluida: false },
-    { texto: 'Assistir a um documentário', concluida: false },
-    { texto: 'Desenhar ou pintar por 30 minutos', concluida: false },
-    { texto: 'Fazer uma lista de metas para o mês', concluida: false },
-    { texto: 'Resolver problema de matemática', concluida: false },
-    { texto: 'Aprender uma palavra nova em um idioma estrangeiro', concluida: false },
+  
   ]);
   
 
-    const toggleConcluida = index => {
-      const newTarefas = [...tarefas];
-      newTarefas[index].concluida = !newTarefas[index].concluida;
-      setTarefas(newTarefas);
-    };
+  const [novaTarefa, setNovaTarefa] = useState('');
+
+  const adicionarTarefa = () => {
+    if (novaTarefa.trim() !== '') {
+      setTarefas([{ id: Date.now(), texto: novaTarefa, concluida: false }, ...tarefas]);
+      setNovaTarefa('');
+    }
+  };
+
+  const toggleConcluida = id => {
+    const tarefaIndex = tarefas.findIndex(tarefa => tarefa.id === id);
+    if (tarefaIndex !== -1) {
+      const tarefaAtualizada = { ...tarefas[tarefaIndex], concluida: !tarefas[tarefaIndex].concluida };
+      const novasTarefas = [...tarefas.slice(0, tarefaIndex), tarefaAtualizada, ...tarefas.slice(tarefaIndex + 1)];
+      const tarefasConcluidas = novasTarefas.filter(tarefa => tarefa.concluida);
+      const tarefasNaoConcluidas = novasTarefas.filter(tarefa => !tarefa.concluida);
+      setTarefas([...tarefasNaoConcluidas, ...tarefasConcluidas]);
+    }
+  };
+  const excluirTarefa = id => {
+    const novaListaTarefas = tarefas.filter(tarefa => tarefa.id !== id);
+    setTarefas(novaListaTarefas);
+  };
+
+  const tarefasConcluidas = tarefas.filter(tarefa => tarefa.concluida);
+  const tarefasNaoConcluidas = tarefas.filter(tarefa => !tarefa.concluida);
+
+  // Concatenar tarefas não concluídas antes das tarefas concluídas
+  const tarefasOrdenadas = [...tarefasNaoConcluidas, ...tarefasConcluidas];
+
 
     return (
       <main className={`${styles.main} ${ibmplexmono.className}`}>
@@ -96,12 +91,25 @@ export default function Login() {
             textAlign: 'left',
             height: '40vh'
           }}>
-            <TextField id="outlined-basic" type='text' variant="standard" />
+            <TextField
+            id="outlined-basic"
+            type='text'
+            variant="standard"
+            value={novaTarefa}
+            onChange={(e) => setNovaTarefa(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                adicionarTarefa();
+              }
+            }}
+          />
+           <Button onClick={adicionarTarefa}>Adicionar Tarefa</Button>
             <Box sx={{height: '40vh'}}>
-            {tarefas.map((tarefa, index) => (
-            <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
+            {tarefasOrdenadas.map((tarefa) => (
+          <Box key={tarefa.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Checkbox
-                onClick={() => toggleConcluida(index)}
+                onClick={() => toggleConcluida(tarefa.id)}
                 color={tarefa.concluida ? 'default' : 'primary'}
               >
                 {tarefa.concluida ? '✔️' : 'Marcar como concluída'}
@@ -115,14 +123,16 @@ export default function Login() {
                 {tarefa.texto}
               </Typography>
             </Box>
-          ))}
+            <IconButton aria-label="delete" onClick={() => excluirTarefa(tarefa.id)}>
+              <Trash />
+            </IconButton>
+          </Box>
+        ))}
           </Box>
 
           </Box>
 
       </Container>
-
-      {/* Depoimentos de clientes (simulado) */}
     </Box>
     </main>
     );
