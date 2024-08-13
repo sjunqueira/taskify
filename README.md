@@ -26,7 +26,7 @@ Taskify é um gerenciador de tarefas desenvolvido com Next.js. O projeto está e
 
 1. Clone o repositório:
     ```bash
-    git clone https://github.com/seuusuario/taskify.git
+    git clone https://github.com/sjunqueira/taskify.git
     ```
 2. Navegue até o diretório do projeto:
     ```bash
